@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Smith — PSBT Transaction Builder</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="hero-bg"></div>
+        <div class="light-streak"></div>
+        <div class="header-inner">
+            <div class="logo">
+                <div class="logo-frame">
+                    <div class="circuit-dot cd-tl"></div>
+                    <div class="circuit-dot cd-tr"></div>
+                    <div class="circuit-dot cd-bl"></div>
+                    <div class="circuit-dot cd-br"></div>
+                    <div class="circuit-line cl-left"></div>
+                    <div class="circuit-line cl-right"></div>
+                    <svg class="cube-svg" viewBox="0 0 80 80" fill="none">
+                        <polygon points="40,12 62,25 62,51 40,64 18,51 18,25" stroke="rgba(0,180,255,0.3)"
+                            stroke-width="1.2" fill="none" />
+                        <polygon points="40,16 58,27 58,49 40,60 22,49 22,27" stroke="rgba(0,200,255,0.7)"
+                            stroke-width="1.5" fill="rgba(0,150,255,0.06)" />
+                        <line x1="40" y1="16" x2="40" y2="60" stroke="rgba(0,200,255,0.4)" stroke-width="1" />
+                        <line x1="22" y1="27" x2="58" y2="49" stroke="rgba(0,200,255,0.3)" stroke-width="1" />
+                        <line x1="58" y1="27" x2="22" y2="49" stroke="rgba(0,200,255,0.3)" stroke-width="1" />
+                        <circle cx="40" cy="38" r="3" fill="rgba(100,200,255,0.5)" stroke="rgba(0,200,255,0.8)"
+                            stroke-width="1" />
+                        <circle cx="40" cy="38" r="6" fill="none" stroke="rgba(0,200,255,0.2)" stroke-width="0.8" />
+                        <circle cx="40" cy="16" r="2" fill="rgba(0,200,255,0.6)" />
+                        <circle cx="58" cy="27" r="1.5" fill="rgba(0,200,255,0.4)" />
+                        <circle cx="22" cy="27" r="1.5" fill="rgba(0,200,255,0.4)" />
+                        <circle cx="40" cy="60" r="2" fill="rgba(0,200,255,0.5)" />
+                    </svg>
+                </div>
+                <div class="hero-text">
+                    <div class="logo-name"><span class="ltr-c">C</span><span class="btc-o">₿</span><span
+                            class="ltr-in">in</span><span class="ltr-smith"><span class="ltr-s">S</span>mith</span>
+                    </div>
+                    <div class="logo-sub">PSBT Transaction Builder</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="card">
+            <div class="card-top">
+                <h2>Fixture Input</h2>
+            </div>
+            <div class="editor">
+                <div class="ln" id="ln"></div>
+                <textarea id="ta" spellcheck="false" placeholder='{ "network": "mainnet", ... }'></textarea>
+            </div>
+            <button id="buildBtn" class="build-btn">🔍 Build PSBT →</button>
+            <div class="try-samples">
+                <span class="try-label">Try Sample:</span>
+                <button class="sample-btn" data-s="basic">📄 P2WPKH</button>
+                <button class="sample-btn" data-s="rbf">⚡ RBF Enabled</button>
+                <button class="sample-btn" data-s="sendall">≡ Send All</button>
+            </div>
+        </section>
+
+        <section id="results" style="display:none">
+            <div class="result-header">
+                <div class="result-status" id="rStatus"></div>
+                <div class="tabs" id="tabs">
+                    <button class="tab active" data-t="summary">Summary</button>
+                    <button class="tab" data-t="inputs">Inputs</button>
+                    <button class="tab" data-t="outputs">Outputs</button>
+                    <button class="tab" data-t="psbt">PSBT (Raw)</button>
+                </div>
+            </div>
+
+            <div class="tp active" id="tp-summary">
+                <div class="top-row">
+                    <div class="fee-block">
+                        <div class="fee-bar"></div>
+                        <div class="fee-main">
+                            <span class="fee-label"><span class="tip">FEE<span class="tip-icon">ⓘ</span><span
+                                        class="tip-content"><span class="tip-title">💰 Transaction Fee</span><span
+                                            class="tip-body">Fee = transaction size (vbytes) × fee rate. Larger
+                                            transactions require higher fees to be prioritized by
+                                            miners.</span></span></span></span>
+                            <span class="fee-value" id="feeVal">0 sats</span>
+                        </div>
+                        <div class="fee-sub" id="feeSub">0 sat/vB</div>
+                    </div>
+                    <div class="vb-block">
+                        <div class="vb-pct" id="vbPct">0%</div>
+                        <div class="vb-value"><span class="tip" id="vbVal">0 vB<span class="tip-icon">ⓘ</span><span
+                                    class="tip-content"><span class="tip-title">📐 Transaction Size (vBytes)</span><span
+                                        class="tip-body">Bitcoin fees are based on transaction size, not amount sent.
+                                        More inputs and outputs increase size. SegWit discounts witness
+                                        data.</span></span></span></div>
+                        <div class="vb-progress">
+                            <div class="vb-fill" id="vbFill"></div>
+                        </div>
+                        <div class="vb-sub" id="vbSub">0 sat/vB</div>
+                    </div>
+                    <div class="rbf-block">
+                        <div class="rbf-label"><span class="tip">RBF<span class="tip-icon">ⓘ</span><span
+                                    class="tip-content"><span class="tip-title">🔄 Replace-By-Fee (BIP-125)</span><span
+                                        class="tip-body">Allows you to increase the transaction fee later if it gets
+                                        stuck in the mempool. Signals via nSequence ≤ 0xFFFFFFFD.</span></span></span>
+                        </div>
+                        <div class="rbf-value" id="rbfVal">✕ OFF</div>
+                    </div>
+                    <div class="warn-block" id="warnBlock">
+                        <div class="warn-title">⚠ Warnings</div>
+                        <div id="warnList"></div>
+                    </div>
+                </div>
+
+                <div class="flow">
+                    <div class="flow-input" id="flowInput"></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-tx" id="flowTx"></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-output" id="flowOutput"></div>
+                </div>
+
+                <div class="stats-bar" id="statsBar"></div>
+            </div>
+
+            <div class="tp" id="tp-inputs"></div>
+            <div class="tp" id="tp-outputs"></div>
+            <div class="tp" id="tp-psbt"></div>
+        </section>
+
+        <footer class="app-footer">
+            <div class="footer-brand">Coin Smith — <span class="footer-highlight">Summer of Bitcoin 2026</span></div>
+        </footer>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
