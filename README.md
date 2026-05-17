@@ -13,7 +13,7 @@ Coin Smith takes a set of UTXOs, payment targets, and a fee rate — then select
 
 ## 🎬 Demo
 
-📹 **[Watch the walkthrough on YouTube](https://youtu.be/Uqjff56Q0IM)** (< 2 min)
+📹 **[Watch the walkthrough on YouTube](https://youtu.be/bf683XX1Aas)** 
 
 ---
 
